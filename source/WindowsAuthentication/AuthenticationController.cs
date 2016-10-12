@@ -15,8 +15,10 @@
  */
 
 using IdentityServer.WindowsAuthentication.Configuration;
+using IdentityServer.WindowsAuthentication.LocalLogon;
 using IdentityServer.WindowsAuthentication.Logging;
 using System.IdentityModel.Services;
+using System.Net;
 using System.Net.Http;
 using System.Security.Principal;
 using System.Threading.Tasks;
@@ -35,7 +37,19 @@ namespace IdentityServer.WindowsAuthentication
         {
             _options = options;
         }
-            
+
+        private void ProcessBasicAuthentication()
+        {
+            var basicIdentity = User?.Identity as HttpListenerBasicIdentity;
+            if (basicIdentity != null)
+            {
+                var windowsIdentity = WindowsLogon.Logon(new LogonCredentials(
+                    basicIdentity.Name, basicIdentity.Password, _options.BasicAuthenticationDefaultDomain));
+
+                User = new WindowsPrincipal(windowsIdentity);
+            }
+        }
+
         [Route("")]
         public async Task<IHttpActionResult> Get()
         {
@@ -47,6 +61,11 @@ namespace IdentityServer.WindowsAuthentication
                 var signin = message as SignInRequestMessage;
                 if (signin != null)
                 {
+                    if (_options.EnableBasicAuthentication)
+                    {
+                        ProcessBasicAuthentication();
+                    }
+
                     if (User == null || !User.Identity.IsAuthenticated)
                     {
                         Logger.Info("User is anonymous. Triggering authentication");

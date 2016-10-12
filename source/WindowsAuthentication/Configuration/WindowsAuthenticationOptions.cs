@@ -36,6 +36,7 @@ namespace IdentityServer.WindowsAuthentication.Configuration
             EnableWsFederationEndpoint = true;
             EnableWsFederationMetadata = true;
             EnableOAuth2Endpoint = true;
+            EnableBasicAuthentication = false;
 
             SubjectType = Configuration.SubjectType.Sid;
             EmitWindowsAccountNameAsName = true;
@@ -108,6 +109,22 @@ namespace IdentityServer.WindowsAuthentication.Configuration
         ///   <c>true</c> if you want to enable the metadata endoint; otherwise, <c>false</c>.
         /// </value>
         public bool EnableWsFederationMetadata { get; set; }
+
+        /// <summary>
+        /// Allow to use basic authentication and do the windows logon inside the service
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if you want to allow basic authentication; otherwise, <c>false</c>.
+        /// </value>
+        public bool EnableBasicAuthentication { get; set; }
+
+        /// <summary>
+        /// The default domain name to use with basic authentication when a plain username is given
+        /// </summary>
+        /// <value>
+        /// The domain name, or 'null' to use the host's default.
+        /// </value>
+        public string BasicAuthenticationDefaultDomain { get; set; }
 
         /// <summary>
         /// Gets or sets the type of the subject. Either the Windows account name or the SID can be used.
